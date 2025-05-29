@@ -28,18 +28,26 @@ const config = {
     const productName = products[i];
     console.log(`🔍 Searching for: ${productName}`);
 
-    // Search input
-    await page.getByRole('textbox', { name: 'כפתור/מכווץ מורחב' }).click();
-    await page.getByRole('textbox', { name: 'כפתור/מכווץ מורחב' }).fill(productName);
+    const searchInput = page.getByRole('textbox', { name: 'כפתור/מכווץ מורחב' });
+    await searchInput.click();
+    await searchInput.fill(''); // clear previous input
+
+    if (i === 0) {
+      await searchInput.type(productName, { delay: 120 });
+    } else {
+      await searchInput.type(productName, { delay: 120 });
+    }
+
     await page.locator('button').filter({ hasText: productName }).first().click();
 
     // Wait for popup and spinner
     await page.waitForSelector('button.miglog-btn-add', { timeout: 10000 });
     await page.waitForSelector('.spinner-container.active', { state: 'detached', timeout: 10000 });
-
     // Click "הוספה"
     await page.locator('button.miglog-btn-add').first().click({ force: true });
     console.log(`🧺 Added ${productName} to cart`);
+
+    
 
     // Optional: increase quantity
     try {
@@ -48,6 +56,7 @@ const config = {
 
     // Only on first product: set address and delivery
     if (i === 0) {
+      
       console.log(`📍 Setting delivery address: ${config.city}, ${config.street} ${config.number}`);
       await page.getByRole('searchbox', { name: 'כפתור מכווץ/מורחב' }).click();
       await page.getByRole('searchbox', { name: 'כפתור מכווץ/מורחב' }).fill(config.city);
@@ -74,5 +83,4 @@ const config = {
 
   console.log('✅ All products added and delivery set!');
   await page.waitForTimeout(2000);
-  
 })();
