@@ -1,18 +1,4 @@
 const { chromium } = require('playwright');
-const readline = require('readline');
-
-// פונקציה לקריאת קלט מהמשתמש
-function askQuestion(query) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise(resolve => rl.question(query, ans => {
-    rl.close();
-    resolve(ans);
-  }));
-}
 
 (async () => {
   const productName = 'לחם פרוס אחיד';
@@ -65,12 +51,9 @@ function askQuestion(query) {
   await page.getByRole('textbox', { name: 'מספר' }).fill(number);
   await page.getByRole('button', { name: 'להמשך' }).click();
 
-  // Ask user for delivery time
-  const deliveryTime = await askQuestion('\n⌛ אנא הזן את שעת המשלוח כפי שמופיעה באתר (למשל: שעה 12:00 דמי משלוח29.90 ₪):\n');
-
-  // Select delivery time
-  console.log(`⏰ Selecting delivery time: ${deliveryTime}`);
-  await page.locator('#mCSB_11_container').getByText(deliveryTime).click();
+  // Select delivery time (first available 12:00)
+  console.log('⏰ Selecting first delivery slot with time 12:00...');
+  await page.locator('label:has(span.hour:has-text("12:00"))').first().click();
   await page.getByRole('button', { name: 'שמירה' }).click();
 
   // Close popup
@@ -80,5 +63,4 @@ function askQuestion(query) {
 
   console.log('✅ Product ordered and delivery set!');
   await page.waitForTimeout(2000);
-  
 })();
